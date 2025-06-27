@@ -1,27 +1,14 @@
 <template>
-  <div class="home">
-    <h1>Hello, World!</h1>
-    <p>Welcome to your Vue TypeScript application.</p>
+  <div
+    class="flex flex-col items-center justify-center min-h-screen bg-gray-50"
+  >
+    <h1 class="text-4xl font-bold text-gray-800 mb-4">Hello, World!</h1>
+    <p class="text-lg text-gray-600">
+      Welcome to your Vue TypeScript application with Tailwind CSS!
+    </p>
   </div>
 </template>
 
 <script setup lang="ts">
   // Home component - displays a simple hello message
 </script>
-
-<style scoped>
-  .home {
-    text-align: center;
-    padding: 2rem;
-  }
-
-  h1 {
-    color: #2c3e50;
-    margin-bottom: 1rem;
-  }
-
-  p {
-    color: #7f8c8d;
-    font-size: 1.1rem;
-  }
-</style>
