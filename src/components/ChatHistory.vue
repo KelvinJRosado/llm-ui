@@ -101,8 +101,7 @@ export type { ChatMessage };
   height: 100%;
   max-height: 24rem;
   overflow-y: auto;
-  background: linear-gradient(to bottom, #f9fafb 0%, #f3f4f6 100%);
-  border-radius: 1rem;
+  /* Remove background and border-radius for unified look */
   padding: 1.5rem;
   gap: 1.25rem;
   scrollbar-width: thin;

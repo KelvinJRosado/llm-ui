@@ -96,7 +96,7 @@ const resetTextareaHeight = async (): Promise<void> => {
 .user-input-panel {
   display: flex;
   align-items: flex-end;
-  gap: 1.5rem;
+  gap: 2.5rem; /* Increased gap for more space */
   padding: 1.5rem;
   background: #fff;
   border-top: 1px solid #e5e7eb;
@@ -104,6 +104,7 @@ const resetTextareaHeight = async (): Promise<void> => {
 .user-input-textarea-wrapper {
   flex: 1 1 0%;
   min-width: 0;
+  margin-right: 0.5rem; /* Add margin to further separate from button */
 }
 .user-input-textarea {
   width: 100%;
@@ -122,6 +123,7 @@ const resetTextareaHeight = async (): Promise<void> => {
 }
 .user-input-send-wrapper {
   flex-shrink: 0;
+  min-width: 130px; /* Ensure button never overlaps textarea */
 }
 .user-input-send-btn {
   padding: 1rem 2rem;

@@ -75,7 +75,7 @@ const handleSendMessage = (message: string): void => {
   flex-direction: column;
   height: 100%;
   width: 100%;
-  background: #f9fafb;
+  /* Remove background for unified look */
   margin-left: 1%;
   margin-right: 1%;
 }
@@ -85,5 +85,7 @@ const handleSendMessage = (message: string): void => {
 }
 .center-pane-input {
   flex-shrink: 0;
+  padding-bottom: 1.5rem; /* Add padding to separate input from bottom */
+  padding-top: 0.5rem; /* Add padding to separate from chat history */
 }
 </style>
