@@ -3,7 +3,7 @@
     class="flex flex-col items-center justify-center min-h-screen bg-gray-50 p-8"
   >
     <!-- TextareaInput component demo -->
-    <div class="mx-auto w-2/3">
+    <div class="mx-auto w-full">
       <TextareaInput
         v-model="userInput"
         label="Enter your message"
