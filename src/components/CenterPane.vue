@@ -22,8 +22,18 @@
       <div class="center-pane-history">
         <ChatHistory :messages="chatMessages" />
       </div>
-      <div class="center-pane-input">
+      <div class="center-pane-input input-flex-col">
         <UserInputPanel @send-message="handleSendMessage" />
+      </div>
+      <div class="new-chat-btn-row">
+        <button
+          class="new-chat-btn"
+          @click="newChat"
+          :disabled="startingChat"
+          aria-label="Start a new chat session"
+        >
+          {{ startingChat ? 'Starting...' : 'New Chat' }}
+        </button>
       </div>
     </template>
   </div>
@@ -83,6 +93,14 @@ const startChat = async (): Promise<void> => {
   } finally {
     startingChat.value = false;
   }
+};
+
+/**
+ * Start a new chat and clear chat history
+ */
+const newChat = async (): Promise<void> => {
+  chatMessages.value = [];
+  await startChat();
 };
 
 /**
@@ -175,5 +193,36 @@ const handleSendMessage = async (message: string): Promise<void> => {
   flex-shrink: 0;
   padding-bottom: 1.5rem; /* Add padding to separate input from bottom */
   padding-top: 0.5rem; /* Add padding to separate from chat history */
+}
+.center-pane-input.input-flex-col {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding-bottom: 1.5rem;
+  padding-top: 0.5rem;
+}
+.new-chat-btn-row {
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-end;
+  align-items: center;
+  width: 100%;
+  margin-top: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+.new-chat-btn {
+  margin: 0;
+  padding: 0.5rem 1.5rem;
+  font-size: 0.95rem;
+  background: #10b981;
+  color: #fff;
+  border: none;
+  border-radius: 0.375rem;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.new-chat-btn:disabled {
+  background: #a7f3d0;
+  cursor: not-allowed;
 }
 </style>
