@@ -18,7 +18,7 @@
         <div
           :class="message.isUser ? 'chat-timestamp user' : 'chat-timestamp ai'"
         >
-          {{ formatTimestamp(message.timestamp) }}
+          {{ message.timestamp }}
         </div>
       </div>
     </div>
@@ -42,7 +42,7 @@ interface ChatMessage {
   id: string;
   content: string;
   isUser: boolean;
-  timestamp: Date;
+  timestamp: string;
 }
 
 /**

@@ -43,25 +43,25 @@ const chatId = ref<string | null>(null);
 
 // Chat messages array - stores the conversation history
 const chatMessages = ref<ChatMessage[]>([
-  // Sample messages for demonstration
-  {
-    id: '1',
-    content: 'Hello! How can I help you today?',
-    isUser: false,
-    timestamp: new Date(Date.now() - 5 * 60 * 1000), // 5 minutes ago
-  },
-  {
-    id: '2',
-    content: "Hi there! I'm looking for help with my project.",
-    isUser: true,
-    timestamp: new Date(Date.now() - 4 * 60 * 1000), // 4 minutes ago
-  },
-  {
-    id: '3',
-    content: "I'd be happy to help! What kind of project are you working on?",
-    isUser: false,
-    timestamp: new Date(Date.now() - 3 * 60 * 1000), // 3 minutes ago
-  },
+  // // Sample messages for demonstration
+  // {
+  //   id: '1',
+  //   content: 'Hello! How can I help you today?',
+  //   isUser: false,
+  //   timestamp: new Date(Date.now() - 5 * 60 * 1000), // 5 minutes ago
+  // },
+  // {
+  //   id: '2',
+  //   content: "Hi there! I'm looking for help with my project.",
+  //   isUser: true,
+  //   timestamp: new Date(Date.now() - 4 * 60 * 1000), // 4 minutes ago
+  // },
+  // {
+  //   id: '3',
+  //   content: "I'd be happy to help! What kind of project are you working on?",
+  //   isUser: false,
+  //   timestamp: new Date(Date.now() - 3 * 60 * 1000), // 3 minutes ago
+  // },
 ]);
 
 /**
@@ -89,29 +89,41 @@ const startChat = async (): Promise<void> => {
  * Handle sending a new message from the user
  * @param message - The message content from the user
  */
-const handleSendMessage = (message: string): void => {
+const handleSendMessage = async (message: string): Promise<void> => {
   // Add user message to chat history
   const userMessage: ChatMessage = {
     id: `user-${Date.now()}`,
     content: message,
     isUser: true,
-    timestamp: new Date(),
+    timestamp: new Date().toISOString(),
   };
 
   chatMessages.value.push(userMessage);
 
-  // Simulate AI response after a short delay
-  setTimeout(() => {
-    const aiMessage: ChatMessage = {
-      id: `ai-${Date.now()}`,
-      content:
-        'Thank you for your message! This is a simulated AI response. In a real application, this would be connected to an AI service.',
-      isUser: false,
-      timestamp: new Date(),
-    };
+  // Ensure chatId is available
+  if (!chatId.value) {
+    console.error('No chat session started.');
+    return;
+  }
 
+  try {
+    // Send user message to the API and await AI response
+    const response = await fetch(
+      `http://localhost:5000/chats/${chatId.value}`,
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(userMessage),
+      }
+    );
+    if (!response.ok) {
+      throw new Error(`API error: ${response.status}`);
+    }
+    const aiMessage: ChatMessage = await response.json();
     chatMessages.value.push(aiMessage);
-  }, 1000);
+  } catch (error) {
+    console.error('Failed to send message or receive response:', error);
+  }
 };
 </script>
 
