@@ -1,33 +1,32 @@
 <template>
   <div
     ref="chatContainer"
-    class="flex flex-col h-full max-h-96 overflow-y-auto bg-gray-50 rounded-lg p-4 space-y-3"
+    class="flex flex-col h-full max-h-96 overflow-y-auto bg-gradient-to-b from-gray-50 to-gray-100 rounded-xl p-6 space-y-5 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-transparent"
   >
     <!-- Chat messages -->
     <div
       v-for="message in messages"
       :key="message.id"
-      :class="[
-        'flex',
-        message.isUser ? 'justify-end' : 'justify-start'
-      ]"
+      :class="['flex', message.isUser ? 'justify-end' : 'justify-start']"
     >
       <div
         :class="[
-          'max-w-xs lg:max-w-md px-4 py-2 rounded-lg shadow-sm',
+          'max-w-xs lg:max-w-md px-6 py-4 shadow-lg border',
           message.isUser
-            ? 'bg-blue-500 text-white'
-            : 'bg-white text-gray-800 border border-gray-200'
+            ? 'bg-blue-500 text-white border-blue-600 rounded-3xl rounded-br-lg'
+            : 'bg-white text-gray-800 border-gray-300 rounded-3xl rounded-bl-lg',
         ]"
       >
         <!-- Message content -->
-        <p class="text-sm whitespace-pre-wrap">{{ message.content }}</p>
-        
+        <p class="text-sm leading-relaxed whitespace-pre-wrap mb-3">
+          {{ message.content }}
+        </p>
+
         <!-- Timestamp -->
         <div
           :class="[
-            'text-xs mt-1',
-            message.isUser ? 'text-blue-100' : 'text-gray-500'
+            'text-xs opacity-75',
+            message.isUser ? 'text-blue-100' : 'text-gray-500',
           ]"
         >
           {{ formatTimestamp(message.timestamp) }}
@@ -38,9 +37,9 @@
     <!-- Empty state -->
     <div
       v-if="messages.length === 0"
-      class="flex items-center justify-center h-32 text-gray-500 text-sm"
+      class="flex items-center justify-center h-32 text-gray-500 text-sm font-medium bg-white/50 rounded-xl border border-gray-200"
     >
-      No messages yet. Start a conversation!
+      💬 No messages yet. Start a conversation!
     </div>
   </div>
 </template>
@@ -80,7 +79,7 @@ const formatTimestamp = (timestamp: Date): string => {
   return timestamp.toLocaleTimeString('en-US', {
     hour: '2-digit',
     minute: '2-digit',
-    hour12: true
+    hour12: true,
   });
 };
 

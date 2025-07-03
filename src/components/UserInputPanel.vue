@@ -1,12 +1,12 @@
 <template>
-  <div class="flex items-end space-x-3 p-4 bg-white border-t border-gray-200">
+  <div class="flex items-end gap-6 p-6 bg-white border-t border-gray-200">
     <!-- Message input textarea -->
-    <div class="flex-1">
+    <div class="flex-1 min-w-0">
       <textarea
         v-model="messageText"
         ref="textareaRef"
         rows="3"
-        class="w-full px-3 py-2 border border-gray-300 rounded-lg resize-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors"
+        class="w-full px-5 py-4 border-2 border-gray-300 rounded-3xl resize-none focus:ring-2 focus:ring-blue-500 focus:border-blue-400 transition-all duration-200 shadow-sm text-sm"
         placeholder="Type your message here..."
         @keydown="handleKeydown"
         @input="adjustTextareaHeight"
@@ -14,13 +14,15 @@
     </div>
 
     <!-- Send button -->
-    <button
-      @click="sendMessage"
-      :disabled="!messageText.trim()"
-      class="px-6 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors min-w-[80px] h-10"
-    >
-      Send
-    </button>
+    <div class="flex-shrink-0">
+      <button
+        @click="sendMessage"
+        :disabled="!messageText.trim()"
+        class="px-8 py-4 bg-blue-500 text-white rounded-3xl hover:bg-blue-600 disabled:bg-gray-400 disabled:cursor-not-allowed transition-all duration-200 min-w-[120px] shadow-lg font-semibold text-sm"
+      >
+        Send
+      </button>
+    </div>
   </div>
 </template>
 
@@ -72,7 +74,10 @@ const adjustTextareaHeight = async (): Promise<void> => {
   await nextTick();
   if (textareaRef.value) {
     textareaRef.value.style.height = 'auto';
-    textareaRef.value.style.height = `${Math.min(textareaRef.value.scrollHeight, 120)}px`;
+    textareaRef.value.style.height = `${Math.min(
+      textareaRef.value.scrollHeight,
+      120
+    )}px`;
   }
 };
 
