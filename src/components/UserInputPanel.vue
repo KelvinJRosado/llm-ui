@@ -13,8 +13,14 @@
       />
     </div>
 
-    <!-- Send button -->
-    <div class="user-input-send-wrapper">
+    <!-- Send button and New Chat button -->
+    <div class="user-input-buttons-wrapper">
+      <button
+        @click="newChat"
+        class="user-input-new-chat-btn"
+      >
+        New Chat
+      </button>
       <button
         @click="sendMessage"
         :disabled="!messageText.trim()"
@@ -34,6 +40,7 @@ import { ref, nextTick } from 'vue';
  */
 interface Emits {
   (e: 'send-message', message: string): void;
+  (e: 'new-chat'): void;
 }
 
 // Component emits
@@ -53,6 +60,13 @@ const sendMessage = (): void => {
     messageText.value = '';
     resetTextareaHeight();
   }
+};
+
+/**
+ * Start a new chat session
+ */
+const newChat = (): void => {
+  emit('new-chat');
 };
 
 /**
@@ -120,6 +134,27 @@ const resetTextareaHeight = async (): Promise<void> => {
   outline: none;
   border-color: #2563eb;
   box-shadow: 0 0 0 2px #2563eb33;
+}
+.user-input-buttons-wrapper {
+  flex-shrink: 0;
+  display: flex;
+  gap: 0.75rem;
+  align-items: center;
+}
+.user-input-new-chat-btn {
+  padding: 1rem 1.5rem;
+  background: #10b981;
+  color: #fff;
+  border: none;
+  border-radius: 1.5rem;
+  font-size: 0.95rem;
+  font-weight: 600;
+  box-shadow: 0 4px 16px rgba(16, 185, 129, 0.08);
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.user-input-new-chat-btn:hover {
+  background: #059669;
 }
 .user-input-send-wrapper {
   flex-shrink: 0;
