@@ -1,13 +1,31 @@
 <template>
   <div class="center-pane-container">
-    <!-- Chat History Section (top half) -->
-    <div class="center-pane-history">
-      <ChatHistory :messages="chatMessages" />
+    <!-- Show info and start button if chat not started -->
+    <div
+      v-if="!chatStarted"
+      class="center-pane-info"
+    >
+      <p class="info-text">
+        Welcome to the LLM UI! This app lets you chat with an AI assistant.
+        Click the button below to start a new chat session.
+      </p>
+      <button
+        class="start-chat-btn"
+        @click="startChat"
+        :disabled="startingChat"
+      >
+        {{ startingChat ? 'Starting...' : 'Start chat' }}
+      </button>
     </div>
-    <!-- User Input Panel (bottom) -->
-    <div class="center-pane-input">
-      <UserInputPanel @send-message="handleSendMessage" />
-    </div>
+    <!-- Chat UI -->
+    <template v-else>
+      <div class="center-pane-history">
+        <ChatHistory :messages="chatMessages" />
+      </div>
+      <div class="center-pane-input">
+        <UserInputPanel @send-message="handleSendMessage" />
+      </div>
+    </template>
   </div>
 </template>
 
@@ -15,6 +33,13 @@
 import { ref } from 'vue';
 import ChatHistory, { type ChatMessage } from './ChatHistory.vue';
 import UserInputPanel from './UserInputPanel.vue';
+
+// Track if chat has started
+const chatStarted = ref(false);
+// Track if chat is being started
+const startingChat = ref(false);
+// Store chatId from API
+const chatId = ref<string | null>(null);
 
 // Chat messages array - stores the conversation history
 const chatMessages = ref<ChatMessage[]>([
@@ -38,6 +63,27 @@ const chatMessages = ref<ChatMessage[]>([
     timestamp: new Date(Date.now() - 3 * 60 * 1000), // 3 minutes ago
   },
 ]);
+
+/**
+ * Start a new chat session by calling the API
+ */
+const startChat = async (): Promise<void> => {
+  startingChat.value = true;
+  try {
+    const response = await fetch('http://localhost:5000/chats', {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+    });
+    const data = await response.json();
+    console.log('Chat started:', data);
+    chatId.value = data.chatId || null;
+    chatStarted.value = true;
+  } catch (error) {
+    console.error('Failed to start chat:', error);
+  } finally {
+    startingChat.value = false;
+  }
+};
 
 /**
  * Handle sending a new message from the user
@@ -78,6 +124,33 @@ const handleSendMessage = (message: string): void => {
   /* Remove background for unified look */
   margin-left: 1%;
   margin-right: 1%;
+}
+.center-pane-info {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  text-align: center;
+}
+.info-text {
+  font-size: 1.1rem;
+  margin-bottom: 2rem;
+  color: #333;
+}
+.start-chat-btn {
+  padding: 0.75rem 2rem;
+  font-size: 1rem;
+  background: #2563eb;
+  color: #fff;
+  border: none;
+  border-radius: 0.375rem;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.start-chat-btn:disabled {
+  background: #a5b4fc;
+  cursor: not-allowed;
 }
 .center-pane-history {
   flex: 1 1 0%;
