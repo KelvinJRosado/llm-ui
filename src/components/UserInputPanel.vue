@@ -1,9 +1,7 @@
 <template>
-  <div
-    class="flex flex-col items-center justify-center min-h-screen bg-gray-50 p-8"
-  >
+  <div class="flex flex-col items-center justify-center h-full w-full bg-gray-50 p-8">
     <!-- TextareaInput component demo -->
-    <div class="mx-auto w-full">
+    <div class="mx-auto w-full max-w-2xl">
       <TextareaInput
         v-model="userInput"
         label="Enter your message"

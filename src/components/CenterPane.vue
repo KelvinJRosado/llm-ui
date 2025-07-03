@@ -1,5 +1,8 @@
 <template>
-  <div class="flex items-center justify-center h-full bg-white">
+  <div
+    class="flex items-center justify-center h-full w-full bg-white"
+    style="margin-left: 1%; margin-right: 1%"
+  >
     <UserInputPanel />
   </div>
 </template>
