@@ -58,19 +58,6 @@ const props = defineProps<Props>();
 const chatContainer = ref<HTMLElement>();
 
 /**
- * Format timestamp for display
- * @param timestamp - The timestamp to format
- * @returns Formatted time string
- */
-const formatTimestamp = (timestamp: Date): string => {
-  return timestamp.toLocaleTimeString('en-US', {
-    hour: '2-digit',
-    minute: '2-digit',
-    hour12: true,
-  });
-};
-
-/**
  * Scroll to bottom of chat when new messages are added
  */
 const scrollToBottom = async (): Promise<void> => {
