@@ -53,24 +53,11 @@ const chatId = ref<string | null>(null);
 
 // Chat messages array - stores the conversation history
 const chatMessages = ref<ChatMessage[]>([
-  // // Sample messages for demonstration
+  // Example:
   // {
-  //   id: '1',
   //   content: 'Hello! How can I help you today?',
   //   isUser: false,
-  //   timestamp: new Date(Date.now() - 5 * 60 * 1000), // 5 minutes ago
-  // },
-  // {
-  //   id: '2',
-  //   content: "Hi there! I'm looking for help with my project.",
-  //   isUser: true,
-  //   timestamp: new Date(Date.now() - 4 * 60 * 1000), // 4 minutes ago
-  // },
-  // {
-  //   id: '3',
-  //   content: "I'd be happy to help! What kind of project are you working on?",
-  //   isUser: false,
-  //   timestamp: new Date(Date.now() - 3 * 60 * 1000), // 3 minutes ago
+  //   timestamp: new Date(Date.now() - 5 * 60 * 1000).toISOString(),
   // },
 ]);
 

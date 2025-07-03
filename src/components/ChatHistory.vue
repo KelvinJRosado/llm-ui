@@ -5,8 +5,8 @@
   >
     <!-- Chat messages -->
     <div
-      v-for="message in messages"
-      :key="message.id"
+      v-for="(message, index) in messages"
+      :key="index"
       :class="message.isUser ? 'chat-row user' : 'chat-row ai'"
     >
       <div :class="message.isUser ? 'chat-bubble user' : 'chat-bubble ai'">
@@ -39,7 +39,6 @@ import { nextTick, ref, watch } from 'vue';
  * Interface for chat message structure
  */
 interface ChatMessage {
-  id: string;
   content: string;
   isUser: boolean;
   timestamp: string;
