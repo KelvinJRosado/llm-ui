@@ -95,7 +95,11 @@ const handleSendMessage = async (message: string): Promise<void> => {
     id: `user-${Date.now()}`,
     content: message,
     isUser: true,
-    timestamp: new Date().toISOString(),
+    timestamp: new Date().toLocaleTimeString('en-US', {
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: true,
+    }),
   };
 
   chatMessages.value.push(userMessage);
