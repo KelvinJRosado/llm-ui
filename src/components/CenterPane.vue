@@ -106,6 +106,16 @@ const handleSendMessage = async (message: string): Promise<void> => {
     return;
   }
 
+  chatMessages.value.push({
+    content: userMessageRequest.content,
+    isUser: true,
+    timestamp: new Date().toLocaleTimeString('en-US', {
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: true,
+    }),
+  });
+
   try {
     // Send user message to the API and await AI response
     const response = await fetch(
@@ -120,7 +130,6 @@ const handleSendMessage = async (message: string): Promise<void> => {
       throw new Error(`API error: ${response.status}`);
     }
     const interaction = await response.json();
-    chatMessages.value.push(interaction.request);
     chatMessages.value.push(interaction.response);
   } catch (error) {
     console.error('Failed to send message or receive response:', error);
