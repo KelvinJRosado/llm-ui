@@ -81,7 +81,14 @@ const handleSendMessage = (message: string): void => {
 }
 .center-pane-history {
   flex: 1 1 0%;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
   padding: 1rem;
+}
+.center-pane-history > * {
+  flex: 1 1 0%;
+  min-height: 0;
 }
 .center-pane-input {
   flex-shrink: 0;

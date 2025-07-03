@@ -99,7 +99,8 @@ export type { ChatMessage };
   display: flex;
   flex-direction: column;
   height: 100%;
-  max-height: 24rem;
+  flex: 1 1 0%;
+  min-height: 0;
   overflow-y: auto;
   /* Remove background and border-radius for unified look */
   padding: 1.5rem;
