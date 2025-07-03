@@ -91,18 +91,9 @@ const startChat = async (): Promise<void> => {
  */
 const handleSendMessage = async (message: string): Promise<void> => {
   // Add user message to chat history
-  const userMessage: ChatMessage = {
-    id: `user-${Date.now()}`,
+  const userMessageRequest = {
     content: message,
-    isUser: true,
-    timestamp: new Date().toLocaleTimeString('en-US', {
-      hour: '2-digit',
-      minute: '2-digit',
-      hour12: true,
-    }),
   };
-
-  chatMessages.value.push(userMessage);
 
   // Ensure chatId is available
   if (!chatId.value) {
@@ -117,14 +108,15 @@ const handleSendMessage = async (message: string): Promise<void> => {
       {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(userMessage),
+        body: JSON.stringify(userMessageRequest),
       }
     );
     if (!response.ok) {
       throw new Error(`API error: ${response.status}`);
     }
-    const aiMessage: ChatMessage = await response.json();
-    chatMessages.value.push(aiMessage);
+    const interaction = await response.json();
+    chatMessages.value.push(interaction.request);
+    chatMessages.value.push(interaction.response);
   } catch (error) {
     console.error('Failed to send message or receive response:', error);
   }
