@@ -1,12 +1,12 @@
 <template>
-  <div class="flex items-end gap-6 p-6 bg-white border-t border-gray-200">
+  <div class="user-input-panel">
     <!-- Message input textarea -->
-    <div class="flex-1 min-w-0">
+    <div class="user-input-textarea-wrapper">
       <textarea
         v-model="messageText"
         ref="textareaRef"
         rows="3"
-        class="w-full px-5 py-4 border-2 border-gray-300 rounded-3xl resize-none focus:ring-2 focus:ring-blue-500 focus:border-blue-400 transition-all duration-200 shadow-sm text-sm"
+        class="user-input-textarea"
         placeholder="Type your message here..."
         @keydown="handleKeydown"
         @input="adjustTextareaHeight"
@@ -14,11 +14,11 @@
     </div>
 
     <!-- Send button -->
-    <div class="flex-shrink-0">
+    <div class="user-input-send-wrapper">
       <button
         @click="sendMessage"
         :disabled="!messageText.trim()"
-        class="px-8 py-4 bg-blue-500 text-white rounded-3xl hover:bg-blue-600 disabled:bg-gray-400 disabled:cursor-not-allowed transition-all duration-200 min-w-[120px] shadow-lg font-semibold text-sm"
+        class="user-input-send-btn"
       >
         Send
       </button>
@@ -91,3 +91,56 @@ const resetTextareaHeight = async (): Promise<void> => {
   }
 };
 </script>
+
+<style scoped>
+.user-input-panel {
+  display: flex;
+  align-items: flex-end;
+  gap: 1.5rem;
+  padding: 1.5rem;
+  background: #fff;
+  border-top: 1px solid #e5e7eb;
+}
+.user-input-textarea-wrapper {
+  flex: 1 1 0%;
+  min-width: 0;
+}
+.user-input-textarea {
+  width: 100%;
+  padding: 1.25rem 1.25rem;
+  border: 2px solid #d1d5db;
+  border-radius: 1.5rem;
+  resize: none;
+  font-size: 0.95rem;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+  transition: border 0.2s, box-shadow 0.2s;
+}
+.user-input-textarea:focus {
+  outline: none;
+  border-color: #2563eb;
+  box-shadow: 0 0 0 2px #2563eb33;
+}
+.user-input-send-wrapper {
+  flex-shrink: 0;
+}
+.user-input-send-btn {
+  padding: 1rem 2rem;
+  background: #2563eb;
+  color: #fff;
+  border: none;
+  border-radius: 1.5rem;
+  font-size: 1rem;
+  font-weight: 600;
+  min-width: 120px;
+  box-shadow: 0 4px 16px rgba(37, 99, 235, 0.08);
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.user-input-send-btn:hover:not(:disabled) {
+  background: #1d4ed8;
+}
+.user-input-send-btn:disabled {
+  background: #9ca3af;
+  cursor: not-allowed;
+}
+</style>

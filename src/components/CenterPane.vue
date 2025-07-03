@@ -1,15 +1,11 @@
 <template>
-  <div
-    class="flex flex-col h-full w-full bg-gray-50"
-    style="margin-left: 1%; margin-right: 1%"
-  >
+  <div class="center-pane-container">
     <!-- Chat History Section (top half) -->
-    <div class="flex-1 p-4">
+    <div class="center-pane-history">
       <ChatHistory :messages="chatMessages" />
     </div>
-
     <!-- User Input Panel (bottom) -->
-    <div class="flex-shrink-0">
+    <div class="center-pane-input">
       <UserInputPanel @send-message="handleSendMessage" />
     </div>
   </div>
@@ -72,3 +68,22 @@ const handleSendMessage = (message: string): void => {
   }, 1000);
 };
 </script>
+
+<style scoped>
+.center-pane-container {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  width: 100%;
+  background: #f9fafb;
+  margin-left: 1%;
+  margin-right: 1%;
+}
+.center-pane-history {
+  flex: 1 1 0%;
+  padding: 1rem;
+}
+.center-pane-input {
+  flex-shrink: 0;
+}
+</style>

@@ -1,43 +1,31 @@
 <template>
   <div
     ref="chatContainer"
-    class="flex flex-col h-full max-h-96 overflow-y-auto bg-gradient-to-b from-gray-50 to-gray-100 rounded-xl p-6 space-y-5 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-transparent"
+    class="chat-history-container"
   >
     <!-- Chat messages -->
     <div
       v-for="message in messages"
       :key="message.id"
-      :class="['flex', message.isUser ? 'justify-end' : 'justify-start']"
+      :class="message.isUser ? 'chat-row user' : 'chat-row ai'"
     >
-      <div
-        :class="[
-          'max-w-xs lg:max-w-md px-6 py-4 shadow-lg border',
-          message.isUser
-            ? 'bg-blue-500 text-white border-blue-600 rounded-3xl rounded-br-lg'
-            : 'bg-white text-gray-800 border-gray-300 rounded-3xl rounded-bl-lg',
-        ]"
-      >
+      <div :class="message.isUser ? 'chat-bubble user' : 'chat-bubble ai'">
         <!-- Message content -->
-        <p class="text-sm leading-relaxed whitespace-pre-wrap mb-3">
+        <p class="chat-message-content">
           {{ message.content }}
         </p>
-
         <!-- Timestamp -->
         <div
-          :class="[
-            'text-xs opacity-75',
-            message.isUser ? 'text-blue-100' : 'text-gray-500',
-          ]"
+          :class="message.isUser ? 'chat-timestamp user' : 'chat-timestamp ai'"
         >
           {{ formatTimestamp(message.timestamp) }}
         </div>
       </div>
     </div>
-
     <!-- Empty state -->
     <div
       v-if="messages.length === 0"
-      class="flex items-center justify-center h-32 text-gray-500 text-sm font-medium bg-white/50 rounded-xl border border-gray-200"
+      class="chat-empty-state"
     >
       💬 No messages yet. Start a conversation!
     </div>
@@ -105,3 +93,83 @@ watch(
 // Export the ChatMessage interface for use in parent components
 export type { ChatMessage };
 </script>
+
+<style scoped>
+.chat-history-container {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  max-height: 24rem;
+  overflow-y: auto;
+  background: linear-gradient(to bottom, #f9fafb 0%, #f3f4f6 100%);
+  border-radius: 1rem;
+  padding: 1.5rem;
+  gap: 1.25rem;
+  scrollbar-width: thin;
+  scrollbar-color: #e5e7eb transparent;
+}
+.chat-history-container::-webkit-scrollbar {
+  width: 8px;
+}
+.chat-history-container::-webkit-scrollbar-thumb {
+  background: #e5e7eb;
+  border-radius: 4px;
+}
+.chat-row {
+  display: flex;
+}
+.chat-row.user {
+  justify-content: flex-end;
+}
+.chat-row.ai {
+  justify-content: flex-start;
+}
+.chat-bubble {
+  max-width: 20rem;
+  min-width: 0;
+  padding: 1.5rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
+  border: 1px solid #e5e7eb;
+  border-radius: 1.5rem;
+  font-size: 1rem;
+  word-break: break-word;
+}
+.chat-bubble.user {
+  background: #2563eb;
+  color: #fff;
+  border-color: #2563eb;
+}
+.chat-bubble.ai {
+  background: #fff;
+  color: #1f2937;
+  border-color: #d1d5db;
+}
+.chat-message-content {
+  font-size: 0.95rem;
+  line-height: 1.6;
+  white-space: pre-wrap;
+  margin-bottom: 0.75em;
+}
+.chat-timestamp {
+  font-size: 0.8rem;
+  opacity: 0.75;
+}
+.chat-timestamp.user {
+  color: #dbeafe;
+}
+.chat-timestamp.ai {
+  color: #6b7280;
+}
+.chat-empty-state {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 8rem;
+  color: #6b7280;
+  font-size: 0.95rem;
+  font-weight: 500;
+  background: rgba(255, 255, 255, 0.5);
+  border-radius: 1rem;
+  border: 1px solid #e5e7eb;
+}
+</style>
