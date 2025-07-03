@@ -36,6 +36,14 @@
 import { ref } from 'vue';
 import ChatHistory, { type ChatMessage } from './ChatHistory.vue';
 import UserInputPanel from './UserInputPanel.vue';
+import { type LLMConfig } from '../types/llm-config';
+
+// Props to receive configuration from parent
+interface Props {
+  llmConfig: LLMConfig;
+}
+
+const props = defineProps<Props>();
 
 // Track if chat has started
 const chatStarted = ref(false);
@@ -91,6 +99,10 @@ const handleSendMessage = async (message: string): Promise<void> => {
   // Add user message to chat history
   const userMessageRequest = {
     content: message,
+    config: {
+      model: props.llmConfig.model,
+      temperature: props.llmConfig.temperature,
+    },
   };
 
   // Ensure chatId is available

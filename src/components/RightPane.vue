@@ -23,23 +23,7 @@
           v-model="selectedModel"
           class="select-input"
         >
-          <option value="llama">LLama</option>
-        </select>
-      </div>
-
-      <div class="input-group">
-        <label
-          for="model-role"
-          class="input-label"
-          >Model Role</label
-        >
-        <select
-          id="model-role"
-          v-model="selectedRole"
-          class="select-input"
-        >
-          <option value="assistant">Assistant</option>
-          <option value="system">System</option>
+          <option value="llama3.2">LLama 3.2</option>
         </select>
       </div>
     </div>
@@ -75,28 +59,9 @@
           v-model="temperature"
           type="range"
           min="0.5"
-          max="1.0"
+          max="0.95"
           value="0.75"
           step="0.05"
-          class="slider-input"
-        />
-      </div>
-
-      <div class="input-group">
-        <label
-          for="top-k"
-          class="input-label"
-        >
-          Top K: {{ topK }}
-        </label>
-        <input
-          id="top-k"
-          v-model="topK"
-          type="range"
-          min="10"
-          max="100"
-          value="40"
-          step="5"
           class="slider-input"
         />
       </div>
@@ -105,16 +70,38 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue';
+import { ref, watch } from 'vue';
+import { type LLMConfig } from '../types/llm-config';
 
-// Model selection state
-const selectedModel = ref<string>('llama');
-const selectedRole = ref<string>('assistant');
+// Props to receive configuration from parent
+interface Props {
+  llmConfig: LLMConfig;
+}
 
-// Configuration state
-const apiKey = ref<string>('');
-const temperature = ref<number>(0.7);
-const topK = ref<number>(50);
+const props = defineProps<Props>();
+
+// Emit configuration updates to parent
+const emit = defineEmits<{
+  updateConfig: [config: Partial<LLMConfig>];
+}>();
+
+// Local reactive state for form inputs
+const selectedModel = ref<string>(props.llmConfig.model || 'llama3.2');
+const apiKey = ref<string>(props.llmConfig.apiKey || '');
+const temperature = ref<number>(props.llmConfig.temperature || 0.7);
+
+// Watch for changes and emit updates to parent
+watch(selectedModel, (newValue) => {
+  emit('updateConfig', { model: newValue });
+});
+
+watch(apiKey, (newValue) => {
+  emit('updateConfig', { apiKey: newValue });
+});
+
+watch(temperature, (newValue) => {
+  emit('updateConfig', { temperature: newValue });
+});
 </script>
 
 <style scoped>
