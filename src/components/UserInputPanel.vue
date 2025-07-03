@@ -60,8 +60,8 @@ const sendMessage = (): void => {
  * @param event - The keyboard event
  */
 const handleKeydown = (event: KeyboardEvent): void => {
-  // Send message on Ctrl+Enter or Cmd+Enter
-  if (event.key === 'Enter' && (event.ctrlKey || event.metaKey)) {
+  // Send message on Enter (without Shift), allow newline with Shift+Enter
+  if (event.key === 'Enter' && !event.shiftKey) {
     event.preventDefault();
     sendMessage();
   }
