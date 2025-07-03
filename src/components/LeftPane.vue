@@ -1,6 +1,6 @@
 <template>
   <div class="side-pane left-pane">
-    <span class="side-pane-placeholder">Left Pane (Placeholder)</span>
+    <span class="side-pane-placeholder">Integrations (Placeholder)</span>
   </div>
 </template>
 

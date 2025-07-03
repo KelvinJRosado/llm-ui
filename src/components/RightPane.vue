@@ -1,6 +1,6 @@
 <template>
   <div class="side-pane right-pane">
-    <span class="side-pane-placeholder">Right Pane (Placeholder)</span>
+    <span class="side-pane-placeholder">Parameter Tuning (Placeholder)</span>
   </div>
 </template>
 
