@@ -40,8 +40,6 @@
         >
           <option value="assistant">Assistant</option>
           <option value="system">System</option>
-          <option value="user">User</option>
-          <option value="user">Tool</option>
         </select>
       </div>
     </div>
@@ -115,7 +113,6 @@ const selectedRole = ref<string>('assistant');
 
 // Configuration state
 const apiKey = ref<string>('');
-const endpoint = ref<string>('');
 const temperature = ref<number>(0.7);
 const topK = ref<number>(50);
 </script>
