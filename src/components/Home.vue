@@ -1,8 +1,11 @@
 <template>
   <div class="flex h-screen">
-    <LeftPane class="flex-1" />
-    <CenterPane class="flex-1" />
-    <RightPane class="flex-1" />
+    <!-- LeftPane: 1/6 width -->
+    <LeftPane class="basis-1/6" />
+    <!-- CenterPane: 4/6 width -->
+    <CenterPane class="basis-4/6" />
+    <!-- RightPane: 1/6 width -->
+    <RightPane class="basis-1/6" />
   </div>
 </template>
 
