@@ -1,56 +1,88 @@
 <template>
-  <div class="flex flex-col items-center justify-center h-full w-full bg-gray-50 p-8">
-    <!-- TextareaInput component demo -->
-    <div class="mx-auto w-full max-w-2xl">
-      <TextareaInput
-        v-model="userInput"
-        label="Enter your message"
+  <div class="flex items-end space-x-3 p-4 bg-white border-t border-gray-200">
+    <!-- Message input textarea -->
+    <div class="flex-1">
+      <textarea
+        v-model="messageText"
+        ref="textareaRef"
+        rows="3"
+        class="w-full px-3 py-2 border border-gray-300 rounded-lg resize-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors"
         placeholder="Type your message here..."
-        :rows="5"
-        :max-length="500"
-        :show-character-count="true"
-        @focus="handleFocus"
-        @blur="handleBlur"
         @keydown="handleKeydown"
+        @input="adjustTextareaHeight"
       />
-
-      <!-- Display the current value for testing -->
-      <div
-        v-if="userInput"
-        class="mt-4 p-3 bg-white rounded-md border"
-      >
-        <h3 class="text-sm font-medium text-gray-700 mb-2">Current Input:</h3>
-        <p class="text-sm text-gray-600 whitespace-pre-wrap">{{ userInput }}</p>
-      </div>
     </div>
+
+    <!-- Send button -->
+    <button
+      @click="sendMessage"
+      :disabled="!messageText.trim()"
+      class="px-6 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors min-w-[80px] h-10"
+    >
+      Send
+    </button>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue';
-import TextareaInput from './TextareaInput.vue';
-
-// Displays a simple hello message and textarea demo
-const userInput = ref('');
+import { ref, nextTick } from 'vue';
 
 /**
- * Handle textarea focus events
+ * Events emitted by the UserInputPanel component
  */
-const handleFocus = (event: FocusEvent): void => {
-  console.log('Textarea focused:', event);
+interface Emits {
+  (e: 'send-message', message: string): void;
+}
+
+// Component emits
+const emit = defineEmits<Emits>();
+
+// Reactive state
+const messageText = ref<string>('');
+const textareaRef = ref<HTMLTextAreaElement>();
+
+/**
+ * Send the current message
+ */
+const sendMessage = (): void => {
+  const message = messageText.value.trim();
+  if (message) {
+    emit('send-message', message);
+    messageText.value = '';
+    resetTextareaHeight();
+  }
 };
 
 /**
- * Handle textarea blur events
- */
-const handleBlur = (event: FocusEvent): void => {
-  console.log('Textarea blurred:', event);
-};
-
-/**
- * Handle textarea keydown events
+ * Handle keydown events in the textarea
+ * @param event - The keyboard event
  */
 const handleKeydown = (event: KeyboardEvent): void => {
-  console.log('Key pressed:', event.key);
+  // Send message on Ctrl+Enter or Cmd+Enter
+  if (event.key === 'Enter' && (event.ctrlKey || event.metaKey)) {
+    event.preventDefault();
+    sendMessage();
+  }
+};
+
+/**
+ * Adjust textarea height based on content
+ */
+const adjustTextareaHeight = async (): Promise<void> => {
+  await nextTick();
+  if (textareaRef.value) {
+    textareaRef.value.style.height = 'auto';
+    textareaRef.value.style.height = `${Math.min(textareaRef.value.scrollHeight, 120)}px`;
+  }
+};
+
+/**
+ * Reset textarea height to default
+ */
+const resetTextareaHeight = async (): Promise<void> => {
+  await nextTick();
+  if (textareaRef.value) {
+    textareaRef.value.style.height = 'auto';
+  }
 };
 </script>
