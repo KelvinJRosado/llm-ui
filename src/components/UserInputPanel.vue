@@ -138,6 +138,7 @@ const resetTextareaHeight = async (): Promise<void> => {
 .user-input-buttons-wrapper {
   flex-shrink: 0;
   display: flex;
+  flex-direction: column;
   gap: 0.75rem;
   align-items: center;
 }
