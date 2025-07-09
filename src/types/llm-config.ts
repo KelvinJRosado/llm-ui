@@ -12,6 +12,33 @@ export interface LLMConfig {
 }
 
 /**
+ * Interface for gaming service integrations
+ * This interface should match the server-side GameIntegration
+ */
+export interface GameIntegration {
+  service: 'steam' | 'epic' | 'playstation' | 'xbox';
+  username: string;
+  connectedAt: string;
+}
+
+/**
+ * Request payload for integration endpoint
+ */
+export interface IntegrationRequest {
+  userId: string;
+  service: string;
+  username: string;
+}
+
+/**
+ * Response from integration endpoint
+ */
+export interface IntegrationResponse {
+  message: string;
+  integration: GameIntegration;
+}
+
+/**
  * Default configuration values
  */
 export const DEFAULT_LLM_CONFIG: LLMConfig = {
