@@ -25,9 +25,8 @@ export interface GameIntegration {
  * Request payload for integration endpoint
  */
 export interface IntegrationRequest {
-  userId: string;
-  service: string;
   username: string;
+  service: string;
 }
 
 /**

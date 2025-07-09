@@ -16,13 +16,22 @@
 
           <div class="service-controls">
             <input
+              v-if="!connectedServices[service.key]"
               v-model="usernames[service.key]"
               type="text"
               :placeholder="`Enter ${service.name} username`"
               class="username-input"
               :disabled="connecting[service.key]"
             />
+            <div
+              v-else
+              class="connected-username"
+            >
+              {{ connectedServices[service.key] }}
+            </div>
+            
             <button
+              v-if="!connectedServices[service.key]"
               @click="connectService(service.key)"
               class="connect-button"
               :disabled="
@@ -30,6 +39,17 @@
               "
             >
               {{ connecting[service.key] ? 'Connecting...' : 'Connect' }}
+            </button>
+            <button
+              v-else
+              @click="disconnectService(service.key)"
+              @mouseenter="isHovering[service.key] = true"
+              @mouseleave="isHovering[service.key] = false"
+              class="disconnect-button"
+              :class="{ 'hover-disconnect': isHovering[service.key] }"
+              :disabled="connecting[service.key]"
+            >
+              {{ connecting[service.key] ? 'Disconnecting...' : (isHovering[service.key] ? 'Disconnect?' : 'Connected') }}
             </button>
           </div>
         </div>
@@ -47,10 +67,9 @@
 </template>
 
 <script setup lang="ts">
-  import { ref, reactive } from 'vue';
+  import { ref, reactive, onMounted } from 'vue';
   import type {
     IntegrationRequest,
-    IntegrationResponse,
   } from '../types/llm-config';
 
   /**
@@ -74,9 +93,29 @@
   });
 
   /**
+   * Reactive state for connected services
+   */
+  const connectedServices = reactive<Record<string, string>>({
+    steam: '',
+    epic: '',
+    playstation: '',
+    xbox: '',
+  });
+
+  /**
    * Reactive state for connection status
    */
   const connecting = reactive<Record<string, boolean>>({
+    steam: false,
+    epic: false,
+    playstation: false,
+    xbox: false,
+  });
+
+  /**
+   * Reactive state for hover status
+   */
+  const isHovering = reactive<Record<string, boolean>>({
     steam: false,
     epic: false,
     playstation: false,
@@ -90,15 +129,33 @@
   const messageType = ref<'success' | 'error'>('success');
 
   /**
-   * Generate a simple user ID (in a real app, this would come from authentication)
+   * Load existing integrations on component mount
    */
-  const getUserId = (): string => {
-    let userId = localStorage.getItem('userId');
-    if (!userId) {
-      userId = `user_${Date.now()}`;
-      localStorage.setItem('userId', userId);
+  onMounted(async () => {
+    await loadIntegrations();
+  });
+
+  /**
+   * Load existing integrations from the server
+   */
+  const loadIntegrations = async (): Promise<void> => {
+    try {
+      const response = await fetch('http://localhost:5000/integration');
+      if (!response.ok) {
+        throw new Error('Failed to load integrations');
+      }
+      
+      const data = await response.json();
+      
+      // Update connected services based on the new structure
+      for (const [service, username] of Object.entries(data.integrations)) {
+        if (typeof username === 'string' && username.trim()) {
+          connectedServices[service] = username;
+        }
+      }
+    } catch (error) {
+      console.error('Failed to load integrations:', error);
     }
-    return userId;
   };
 
   /**
@@ -117,7 +174,6 @@
 
     try {
       const payload: IntegrationRequest = {
-        userId: getUserId(),
         service: serviceKey,
         username,
       };
@@ -135,7 +191,12 @@
         throw new Error(errorData.error || 'Failed to connect service');
       }
 
-      const data: IntegrationResponse = await response.json();
+      const data = await response.json();
+      
+      // Update connected services state
+      connectedServices[serviceKey] = username;
+      usernames[serviceKey] = ''; // Clear the input
+      
       showMessage(
         `Successfully connected ${serviceKey} account: ${username}`,
         'success'
@@ -146,6 +207,47 @@
       console.error('Failed to connect service:', error);
       showMessage(
         `Failed to connect ${serviceKey}: ${
+          error instanceof Error ? error.message : 'Unknown error'
+        }`,
+        'error'
+      );
+    } finally {
+      connecting[serviceKey] = false;
+    }
+  };
+
+  /**
+   * Disconnect a gaming service by sending DELETE request to the server
+   * @param serviceKey The service key to disconnect
+   */
+  const disconnectService = async (serviceKey: string): Promise<void> => {
+    connecting[serviceKey] = true;
+    message.value = '';
+
+    try {
+      const response = await fetch(`http://localhost:5000/integration/${serviceKey}`, {
+        method: 'DELETE',
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Failed to disconnect service');
+      }
+
+      // Update connected services state
+      connectedServices[serviceKey] = '';
+      isHovering[serviceKey] = false;
+      
+      showMessage(
+        `Successfully disconnected ${serviceKey} account`,
+        'success'
+      );
+
+      console.log('Integration removed:', serviceKey);
+    } catch (error) {
+      console.error('Failed to disconnect service:', error);
+      showMessage(
+        `Failed to disconnect ${serviceKey}: ${
           error instanceof Error ? error.message : 'Unknown error'
         }`,
         'error'
@@ -301,6 +403,53 @@
     background: #9ca3af;
     cursor: not-allowed;
     transform: none;
+  }
+
+  .disconnect-button {
+    padding: 0.5rem 1rem;
+    background: #10b981;
+    color: #ffffff;
+    border: none;
+    border-radius: 0.375rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    white-space: nowrap;
+  }
+
+  .disconnect-button:hover:not(:disabled) {
+    background: #059669;
+    transform: translateY(-1px);
+  }
+
+  .disconnect-button.hover-disconnect {
+    background: #ef4444;
+  }
+
+  .disconnect-button.hover-disconnect:hover:not(:disabled) {
+    background: #dc2626;
+  }
+
+  .disconnect-button:active:not(:disabled) {
+    transform: translateY(0);
+  }
+
+  .disconnect-button:disabled {
+    background: #9ca3af;
+    cursor: not-allowed;
+    transform: none;
+  }
+
+  .connected-username {
+    flex: 1;
+    padding: 0.5rem 0.75rem;
+    background: #f0fdf4;
+    border: 1px solid #bbf7d0;
+    border-radius: 0.375rem;
+    font-size: 0.875rem;
+    color: #166534;
+    font-weight: 500;
   }
 
   .message {
