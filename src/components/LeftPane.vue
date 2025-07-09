@@ -29,7 +29,7 @@
             >
               {{ connectedServices[service.key] }}
             </div>
-            
+
             <button
               v-if="!connectedServices[service.key]"
               @click="connectService(service.key)"
@@ -49,7 +49,13 @@
               :class="{ 'hover-disconnect': isHovering[service.key] }"
               :disabled="connecting[service.key]"
             >
-              {{ connecting[service.key] ? 'Disconnecting...' : (isHovering[service.key] ? 'Disconnect?' : 'Connected') }}
+              {{
+                connecting[service.key]
+                  ? 'Disconnecting...'
+                  : isHovering[service.key]
+                  ? 'Disconnect?'
+                  : 'Connected'
+              }}
             </button>
           </div>
         </div>
@@ -68,9 +74,7 @@
 
 <script setup lang="ts">
   import { ref, reactive, onMounted } from 'vue';
-  import type {
-    IntegrationRequest,
-  } from '../types/llm-config';
+  import type { IntegrationRequest } from '../types/llm-config';
 
   /**
    * Gaming services configuration
@@ -144,9 +148,9 @@
       if (!response.ok) {
         throw new Error('Failed to load integrations');
       }
-      
+
       const data = await response.json();
-      
+
       // Update connected services based on the new structure
       for (const [service, username] of Object.entries(data.integrations)) {
         if (typeof username === 'string' && username.trim()) {
@@ -192,11 +196,11 @@
       }
 
       const data = await response.json();
-      
+
       // Update connected services state
       connectedServices[serviceKey] = username;
       usernames[serviceKey] = ''; // Clear the input
-      
+
       showMessage(
         `Successfully connected ${serviceKey} account: ${username}`,
         'success'
@@ -225,9 +229,12 @@
     message.value = '';
 
     try {
-      const response = await fetch(`http://localhost:5000/integration/${serviceKey}`, {
-        method: 'DELETE',
-      });
+      const response = await fetch(
+        `http://localhost:5000/integration/${serviceKey}`,
+        {
+          method: 'DELETE',
+        }
+      );
 
       if (!response.ok) {
         const errorData = await response.json();
@@ -237,11 +244,8 @@
       // Update connected services state
       connectedServices[serviceKey] = '';
       isHovering[serviceKey] = false;
-      
-      showMessage(
-        `Successfully disconnected ${serviceKey} account`,
-        'success'
-      );
+
+      showMessage(`Successfully disconnected ${serviceKey} account`, 'success');
 
       console.log('Integration removed:', serviceKey);
     } catch (error) {
