@@ -12,6 +12,14 @@
           <div class="service-info">
             <div class="service-icon">{{ service.icon }}</div>
             <span class="service-name">{{ service.name }}</span>
+            <div class="helper-container">
+              <div
+                class="helper-icon"
+                :title="getHelperText(service.key)"
+              >
+                ?
+              </div>
+            </div>
           </div>
 
           <div class="service-controls">
@@ -262,6 +270,23 @@
   };
 
   /**
+   * Get helper text for a specific service
+   * @param serviceKey The service key
+   * @returns Helper text for the service
+   */
+  const getHelperText = (serviceKey: string): string => {
+    const helperTexts: Record<string, string> = {
+      steam:
+        'Get this value by checking the URL after going to your Steam profile from your account',
+      epic: 'Enter your Epic Games username',
+      playstation: 'Enter your PlayStation Network username',
+      xbox: 'Enter your Xbox Live gamertag',
+    };
+
+    return helperTexts[serviceKey] || '';
+  };
+
+  /**
    * Show a message to the user
    * @param msg The message to display
    * @param type The message type (success or error)
@@ -347,6 +372,31 @@
     font-weight: 500;
     color: #374151;
     font-size: 0.875rem;
+  }
+
+  .helper-container {
+    margin-left: auto;
+  }
+
+  .helper-icon {
+    width: 1rem;
+    height: 1rem;
+    background: #e5e7eb;
+    color: #6b7280;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.75rem;
+    font-weight: 600;
+    cursor: help;
+    transition: all 0.2s ease;
+  }
+
+  .helper-icon:hover {
+    background: #3b82f6;
+    color: #ffffff;
+    transform: scale(1.1);
   }
 
   .service-controls {
