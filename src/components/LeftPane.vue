@@ -66,6 +66,83 @@
               }}
             </button>
           </div>
+
+          <!-- Games List Section -->
+          <div
+            v-if="
+              connectedServices[service.key] &&
+              gamesList[service.key]?.length > 0
+            "
+            class="games-section"
+          >
+            <button
+              @click="toggleGamesList(service.key)"
+              class="games-toggle"
+            >
+              <span
+                class="caret"
+                :class="{ expanded: gamesExpanded[service.key] }"
+                >▶</span
+              >
+              <span>{{ gamesList[service.key].length }} games found</span>
+            </button>
+
+            <div
+              v-if="gamesExpanded[service.key]"
+              class="games-list"
+            >
+              <div
+                v-for="(game, index) in paginatedGames(service.key)"
+                :key="`${service.key}-${index}`"
+                class="game-row"
+              >
+                <input
+                  v-model="gameSelections[service.key][index]"
+                  type="checkbox"
+                  :id="`game-${service.key}-${index}`"
+                  class="game-checkbox"
+                />
+                <label
+                  :for="`game-${service.key}-${index}`"
+                  class="game-label"
+                >
+                  {{ game.name }}
+                  <span
+                    v-if="game.playMinutes"
+                    class="playtime"
+                  >
+                    ({{ formatPlaytime(game.playMinutes) }})
+                  </span>
+                </label>
+              </div>
+
+              <div
+                v-if="gamesList[service.key].length > 10"
+                class="pagination-controls"
+              >
+                <button
+                  @click="previousPage(service.key)"
+                  :disabled="currentPage[service.key] === 0"
+                  class="pagination-button"
+                >
+                  ← Previous
+                </button>
+                <span class="page-info">
+                  Page {{ currentPage[service.key] + 1 }} of
+                  {{ totalPages(service.key) }}
+                </span>
+                <button
+                  @click="nextPage(service.key)"
+                  :disabled="
+                    currentPage[service.key] >= totalPages(service.key) - 1
+                  "
+                  class="pagination-button"
+                >
+                  Next →
+                </button>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -82,7 +159,7 @@
 
 <script setup lang="ts">
   import { ref, reactive, onMounted } from 'vue';
-  import type { IntegrationRequest } from '../types/llm-config';
+  import type { IntegrationRequest, Game } from '../types/llm-config';
 
   /**
    * Gaming services configuration
@@ -132,6 +209,46 @@
     epic: false,
     playstation: false,
     xbox: false,
+  });
+
+  /**
+   * Reactive state for games list from integrations
+   */
+  const gamesList = reactive<Record<string, Game[]>>({
+    steam: [],
+    epic: [],
+    playstation: [],
+    xbox: [],
+  });
+
+  /**
+   * Reactive state for games list expansion
+   */
+  const gamesExpanded = reactive<Record<string, boolean>>({
+    steam: false,
+    epic: false,
+    playstation: false,
+    xbox: false,
+  });
+
+  /**
+   * Reactive state for current page of games
+   */
+  const currentPage = reactive<Record<string, number>>({
+    steam: 0,
+    epic: 0,
+    playstation: 0,
+    xbox: 0,
+  });
+
+  /**
+   * Reactive state for game selections (checkboxes)
+   */
+  const gameSelections = reactive<Record<string, Record<number, boolean>>>({
+    steam: {},
+    epic: {},
+    playstation: {},
+    xbox: {},
   });
 
   /**
@@ -209,6 +326,12 @@
       connectedServices[serviceKey] = username;
       usernames[serviceKey] = ''; // Clear the input
 
+      // Handle games data if returned
+      if (data.games && Array.isArray(data.games)) {
+        gamesList[serviceKey] = data.games;
+        initializeGameSelections(serviceKey, data.games);
+      }
+
       showMessage(
         `Successfully connected ${serviceKey} account: ${username}`,
         'success'
@@ -253,13 +376,28 @@
       connectedServices[serviceKey] = '';
       isHovering[serviceKey] = false;
 
+      // Clear games data
+      gamesList[serviceKey] = [];
+      gamesExpanded[serviceKey] = false;
+      currentPage[serviceKey] = 0;
+      gameSelections[serviceKey] = {};
+
       showMessage(`Successfully disconnected ${serviceKey} account`, 'success');
 
       console.log('Integration removed:', serviceKey);
     } catch (error) {
       console.error('Failed to disconnect service:', error);
+
+      // Clear integration anyway to fix the disconnect bug
+      connectedServices[serviceKey] = '';
+      isHovering[serviceKey] = false;
+      gamesList[serviceKey] = [];
+      gamesExpanded[serviceKey] = false;
+      currentPage[serviceKey] = 0;
+      gameSelections[serviceKey] = {};
+
       showMessage(
-        `Failed to disconnect ${serviceKey}: ${
+        `Service disconnected locally due to server error: ${
           error instanceof Error ? error.message : 'Unknown error'
         }`,
         'error'
@@ -299,6 +437,87 @@
     setTimeout(() => {
       message.value = '';
     }, 5000);
+  };
+
+  /**
+   * Initialize game selections for a service
+   * @param serviceKey The service key
+   * @param games The games array
+   */
+  const initializeGameSelections = (
+    serviceKey: string,
+    games: Game[]
+  ): void => {
+    gameSelections[serviceKey] = {};
+    games.forEach((_, index) => {
+      gameSelections[serviceKey][index] = true; // All checkboxes start checked
+    });
+  };
+
+  /**
+   * Toggle the games list expansion for a service
+   * @param serviceKey The service key
+   */
+  const toggleGamesList = (serviceKey: string): void => {
+    gamesExpanded[serviceKey] = !gamesExpanded[serviceKey];
+  };
+
+  /**
+   * Get paginated games for a service
+   * @param serviceKey The service key
+   * @returns Array of games for current page
+   */
+  const paginatedGames = (serviceKey: string): Game[] => {
+    const games = gamesList[serviceKey] || [];
+    const start = currentPage[serviceKey] * 10;
+    const end = start + 10;
+    return games.slice(start, end);
+  };
+
+  /**
+   * Get total pages for a service
+   * @param serviceKey The service key
+   * @returns Total number of pages
+   */
+  const totalPages = (serviceKey: string): number => {
+    const games = gamesList[serviceKey] || [];
+    return Math.ceil(games.length / 10);
+  };
+
+  /**
+   * Go to previous page
+   * @param serviceKey The service key
+   */
+  const previousPage = (serviceKey: string): void => {
+    if (currentPage[serviceKey] > 0) {
+      currentPage[serviceKey]--;
+    }
+  };
+
+  /**
+   * Go to next page
+   * @param serviceKey The service key
+   */
+  const nextPage = (serviceKey: string): void => {
+    if (currentPage[serviceKey] < totalPages(serviceKey) - 1) {
+      currentPage[serviceKey]++;
+    }
+  };
+
+  /**
+   * Format playtime from minutes to hours and minutes
+   * @param minutes The playtime in minutes
+   * @returns Formatted playtime string
+   */
+  const formatPlaytime = (minutes: number): string => {
+    const hours = Math.floor(minutes / 60);
+    const remainingMinutes = minutes % 60;
+
+    if (hours > 0) {
+      return `${hours}h ${remainingMinutes}m`;
+    } else {
+      return `${remainingMinutes}m`;
+    }
   };
 </script>
 
@@ -526,6 +745,120 @@
     border: 1px solid #fecaca;
   }
 
+  /* Games section styles */
+  .games-section {
+    margin-top: 0.75rem;
+    border-top: 1px solid #e5e7eb;
+    padding-top: 0.75rem;
+  }
+
+  .games-toggle {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: none;
+    border: none;
+    padding: 0.5rem 0;
+    cursor: pointer;
+    font-size: 0.875rem;
+    color: #6b7280;
+    width: 100%;
+    text-align: left;
+  }
+
+  .games-toggle:hover {
+    color: #374151;
+  }
+
+  .caret {
+    transition: transform 0.2s ease;
+    font-size: 0.75rem;
+  }
+
+  .caret.expanded {
+    transform: rotate(90deg);
+  }
+
+  .games-list {
+    max-height: 300px;
+    overflow-y: auto;
+    margin-top: 0.5rem;
+    padding: 0.5rem;
+    background: #f9fafb;
+    border: 1px solid #e5e7eb;
+    border-radius: 0.375rem;
+  }
+
+  .game-row {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.375rem 0;
+    border-bottom: 1px solid #e5e7eb;
+  }
+
+  .game-row:last-child {
+    border-bottom: none;
+  }
+
+  .game-checkbox {
+    width: 1rem;
+    height: 1rem;
+    accent-color: #3b82f6;
+    cursor: pointer;
+  }
+
+  .game-label {
+    flex: 1;
+    font-size: 0.875rem;
+    color: #374151;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .playtime {
+    font-size: 0.75rem;
+    color: #6b7280;
+    font-weight: normal;
+  }
+
+  .pagination-controls {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 0.75rem;
+    padding: 0.5rem;
+    background: #ffffff;
+    border-top: 1px solid #e5e7eb;
+  }
+
+  .pagination-button {
+    padding: 0.25rem 0.75rem;
+    background: #f3f4f6;
+    border: 1px solid #d1d5db;
+    border-radius: 0.375rem;
+    font-size: 0.75rem;
+    color: #374151;
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+
+  .pagination-button:hover:not(:disabled) {
+    background: #e5e7eb;
+  }
+
+  .pagination-button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  .page-info {
+    font-size: 0.75rem;
+    color: #6b7280;
+  }
+
   /* Responsive design for smaller screens */
   @media (max-width: 768px) {
     .side-pane.left-pane {
@@ -538,6 +871,19 @@
     }
 
     .connect-button {
+      width: 100%;
+    }
+
+    .games-list {
+      max-height: 200px;
+    }
+
+    .pagination-controls {
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+
+    .pagination-button {
       width: 100%;
     }
   }

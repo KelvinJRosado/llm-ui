@@ -12,6 +12,16 @@ export interface LLMConfig {
 }
 
 /**
+ * Interface for a game from Steam API
+ */
+export interface Game {
+  /** The name of the game */
+  name: string;
+  /** The playtime in minutes */
+  playMinutes?: number;
+}
+
+/**
  * Interface for gaming service integrations
  * This interface should match the server-side GameIntegration
  */
@@ -35,6 +45,7 @@ export interface IntegrationRequest {
 export interface IntegrationResponse {
   message: string;
   integration: GameIntegration;
+  games?: Game[];
 }
 
 /**
