@@ -68,7 +68,7 @@ const chatMessages = ref<ChatMessage[]>([
 const startChat = async (): Promise<void> => {
   startingChat.value = true;
   try {
-    const response = await fetch('http://localhost:5000/chats', {
+    const response = await fetch('http://127.0.0.1:5000/chats', {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
     });
@@ -124,7 +124,7 @@ const handleSendMessage = async (message: string): Promise<void> => {
   try {
     // Send user message to the API and await AI response
     const response = await fetch(
-      `http://localhost:5000/chats/${chatId.value}`,
+      `http://127.0.0.1:5000/chats/${chatId.value}`,
       {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
